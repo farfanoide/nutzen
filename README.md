@@ -2,7 +2,7 @@ NutZen
 ======
 
 De la palabra germana `nutzen` (aprovechar, usar) o su descomposición en las
-palabras `nut` (loco) y `zen` (estado de paz).
+palabras, completamente inconexas, `nut` (loco) y `zen` (estado de paz).
 
 El antes y depuse de leer esto:
 
@@ -79,18 +79,18 @@ como funciona una pagina web desde el principio. ¿Como pedimos una pagina web?,
         _____
        /  _)))
       (___|''-
-        ; _=                                                                                 _______________
-     ___//_   /_    _________           REQUEST: 'http://farfanoi.de/index.html'            |  ___________  |
-    /)  \/ )  ))   |.        |_                                                             | |           | |
-   //| - -/\\/;    |.        |:|  --------->          **************           --------->   | |   0   0   | |
-  |/ |   /  \/     |.        |/                  *****              *****                   | |     -     | |
-  ;  :::::         |_________|                ***        INTERNET         ***               | |   \___/   | |
-_(/ //////\\\\\     __|___|__     <---------     *****              *****      <---------   | |___     ___| |
-/|_//////// / /____[_________]_                       **************                        |_____|\_/|_____|
-          |/|/                                                                                    |\|/|
-          | |                         RESPONSE: '<html> jellou worlds </html>'               / ************ \
-         (|(|                                                                               /  ************* \
-        ,||||                                                                               -------------------
+        ; _=                                                                    _______________
+     ___//_   /_    _________    REQUEST: 'http://farfanoi.de/index.html'      |  ___________  |
+    /)  \/ )  ))   |.        |_                   .-,(  ),-.                   | |           | |
+   //| - -/\\/;    |.        |:|  --------->   .-(          )-.   --------->   | |   0   0   | |
+  |/ |   /  \/     |.        |/               (    internet    )               | |     -     | |
+  ;  :::::         |_________|                 '-(          ).-'               | |   \___/   | |
+_(/ //////\\\\\     __|___|__     <---------       '-.( ).-'      <---------   | |___     ___| |
+/|_//////// / /____[_________]_                                                |_____|\_/|_____|
+          |/|/                                                                       |\|/|
+          | |                   RESPONSE: '<html> jellou worlds </html>'        / ************ \
+         (|(|                                                                  /  ************* \
+        ,||||                                                                  -------------------
          '='=
 ```
 
@@ -126,7 +126,7 @@ puede verse entremezclada en ocasiones, vamos a simplificarnos y considerar que:
   servidor.
 
 - El `Recurso` sera lo que efectivamente le estamos pidiendo al servidor, podría
-  ser un archivo html, css, js, una imagen o un archivo PHP el cual debería ser
+  ser un archivo HTML, CSS, JS, una imagen o un archivo PHP el cual debería ser
   ejecutado por el servidor para devolverme la información que realmente deseo ver.
 
 - Los `Parametros` son una lista en el formato `clave=valor` de la cual nos
@@ -139,7 +139,7 @@ directamente a las partes que decodificamos de la URL:
   y servidor
 
 - Servidor web: Sera el encargado de buscar el recurso en caso de ser estático
-  (css, js, imagen) o invocara a nuestra aplicación para contenido dinámico.
+  (CSS, JS, imagen) o invocara a nuestra aplicación para contenido dinámico.
 
 - Aplicación web: Sera la encargada de procesar el request y devolver un
   response (respuesta) adecuado.
@@ -175,7 +175,7 @@ Nuevamente pecando de simplista me atrevo a enumerar lo siguiente:
 - Debe soportar [pretty urls][].
 
 
-[pretty urls](https://en.wikipedia.org/wiki/Semantic_URL)
+[pretty urls]: https://en.wikipedia.org/wiki/Semantic_URL
 [mvc]: https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller
 
 
@@ -188,16 +188,17 @@ Disposición y estructura de directorios:
 ----------------------------------------
 
 ```
-nut_zen/
+nutzen/
 |-- app/
-|   |-- controllers/  # Controladores.
-|   |-- core/         # Archivos con el nucleo de nuestra aplicacion.
-|   |-- models/       # Modelos.
-|   |-- views/        # Vistas.
-|   |-- init.php      # Script para unificar nuestra aplicacion.
-|-- public/           # Esta deberia ser la carpeta root para nuestro servidor web.
-|   |-- index.php     # Nuestro punto de entrada, incluye a init.php y corre nuestra app.
-|   |-- assets/       # Recursos estaticos (hojas de estilo, javascripts, imagenes, etc)
+|   |-- config/      # Archivos de configuracion
+|   |-- controllers/ # Controladores
+|   |-- core/        # Archivos con el nucleo de nuestra aplicacion
+|   |-- models/      # Modelos
+|   |-- views/       # Vistas
+|   |-- init.php     # Script para unificar nuestra aplicacion
+|-- public/          # Esta deberia ser la carpeta root para nuestro servidor web
+|   |-- index.php    # Nuestro punto de entrada, incluye a init.php y corre nuestra app
+|   |-- assets/      # Recursos estaticos (hojas de estilo, javascripts, imagenes, etc)
 |   |   |-- css/
 |   |   |-- img/
 |   |   |-- js/
@@ -207,21 +208,83 @@ Objetos Núcleo y sus responsabilidades:
 ---------------------------------------
 
 Antes de entrar en detalle en el funcionamiento particular de cada objeto
-demarcaremos el flujo general y su interaccion de la forma mas sencilla posible
-siguiendo el `happy path` (ejecucion correcta).
+demarcaremos el flujo general y su interacción de la forma mas sencilla posible
+siguiendo el `happy path` (ejecución correcta).
 
 Arrancamos entonces por nuestro archivo `index.php` el cual hemos demarcado como
-entry point a nuestra aplicacion, este se encargara de requerir los archivos
-necesarios para disponer de nuestras clases y asi poder instanciar a nuestro
+entry point a nuestra aplicación, este se encargara de requerir los archivos
+necesarios para así disponer de nuestras clases y poder instanciar a nuestro
 primer objeto real, nuestra `Application`.
 
-Esta delega el `Request` actual al `Router` para ver si puede ser atendido por
-alguna `Route`.
+Esta delega el `Request` actual al `Router` para ver si se condice con alguna de
+las `Route` definidas.
 
-De ser asi un `Controller` ejecutara la logica deseada, esto normalmente
-involucra hacer uso de algun `Model` para buscar datos desde la BBDD y hacerlos
+De ser así un `Controller` ejecutara la lógica deseada, esto normalmente
+involucra hacer uso de algún `Model` para buscar datos desde la BBDD y hacerlos
 disponibles para su renderizado en una `View`.
 
 Dicho renderizado se incorpora como el contenido de nuestro `Response` el cual
-es retornado al servdor web para asi volver hasta el cliente.
+es retornado al servidor web para así volver hasta el cliente.
+
+Así pues, siguiendo un formato de desarrollo 'outside-in' o 'afuera-adentro' ya
+podríamos declarar la interfaz básica que popularía nuestro `index.php`:
+
+```php
+
+// -----------------------------------------------------------
+// requerimos todas nuestras dependencias
+// -----------------------------------------------------------
+
+require_once dirname(__DIR__) . '/app/init.php';
+
+// -----------------------------------------------------------
+// Instanciamos nuestra aplicacion
+// -----------------------------------------------------------
+
+$app = new Application();
+
+// -----------------------------------------------------------
+// La ejecutamos con el request actual y recibimos un response
+// -----------------------------------------------------------
+
+$response = $app->run(Request::current());
+
+// -----------------------------------------------------------
+// Finalmente retornamos la respuesta al servidor web
+// -----------------------------------------------------------
+
+echo $response->send();
+```
+
+
+O dicho mas graficamente:
+
+<img src='http://g.gravizo.com/g?
+@startuml;
+
+  participant Application;
+  participant Router;
+  participant Controller;
+  participant Model;
+  participant View;
+
+  activate Application;
+  activate Router;
+  Application -> Router : dispatch(request);
+  Router      -> Controller : execute();
+  activate Controller;
+    Controller  -> Model : get();
+    activate Model;
+    Model      --> Controller : Object;
+    deactivate Model;
+    Controller  -> View : render();
+    activate View;
+    View       --> Controller : HTML;
+    deactivate View;
+    Controller ->> Application : Response;
+  deactivate Controller;
+  deactivate Router;
+  deactivate Application;
+@enduml
+'/>
 
