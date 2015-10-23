@@ -256,18 +256,14 @@ $response = $app->run(Request::current());
 echo $response->send();
 ```
 
-
 O dicho mas graficamente:
 
-<img src='http://g.gravizo.com/g?
-@startuml;
-
+![Alt text](http://g.gravizo.com/g?@startuml;
   participant Application;
   participant Router;
   participant Controller;
   participant Model;
   participant View;
-
   activate Application;
   activate Router;
   Application -> Router : dispatch(request);
@@ -286,5 +282,4 @@ O dicho mas graficamente:
   deactivate Router;
   deactivate Application;
 @enduml
-'/>
-
+)
