@@ -6,10 +6,10 @@ palabras, completamente inconexas, `nut` (loco) y `zen` (estado de paz).
 
 El antes y depuse de leer esto:
 
- antes |  después
--------|---------
-:rage: | :relaxed:
- Nut   |   Zen
+ |  antes  |  después  |
+ |:-------:|:---------:|
+ |  :rage: | :relaxed: |
+ |   Nut   |    Zen    |
 
 La idea de este proyecto es explicar de la forma mas sencilla posible el
 funcionamiento de una aplicación web basada en estándares utilizados en
@@ -33,16 +33,16 @@ Tecnologías que usaremos:
 [django]: https://www.djangoproject.com/
 [php]: https://secure.php.net/
 [css]: https://en.wikipedia.org/wiki/Cascading_Style_Sheets
-[Nginx]: https://www.nginx.com/
-[MySQL]: https://www.mysql.com/
+[nginx]: https://www.nginx.com/
+[mysql]: https://www.mysql.com/
 
 Mas tecnologías utilizadas pero no explicadas (lo dejamos para el curioso):
 
 - [Vagrant][]
 - [Ansible][]
 
-[Vagrant]: https://www.vagrantup.com/
-[Ansible]: http://www.ansible.com/
+[vagrant]: https://www.vagrantup.com/
+[ansible]: http://www.ansible.com/
 
 
 
@@ -227,7 +227,8 @@ Dicho renderizado se incorpora como el contenido de nuestro `Response` el cual
 es retornado al servidor web para así volver hasta el cliente.
 
 Así pues, siguiendo un formato de desarrollo 'outside-in' o 'afuera-adentro' ya
-podríamos declarar la interfaz básica que popularía nuestro `index.php`:
+podríamos declarar la interfaz básica que popularía nuestro
+[index.php](public/index.php):
 
 ```php
 
@@ -256,30 +257,171 @@ $response = $app->run(Request::current());
 echo $response->send();
 ```
 
-O dicho mas graficamente:
+O dicho mas gráficamente:
 
-![Alt text](http://g.gravizo.com/g?@startuml;
-  participant Application;
-  participant Router;
-  participant Controller;
-  participant Model;
-  participant View;
-  activate Application;
-  activate Router;
-  Application -> Router : dispatch(request);
-  Router      -> Controller : execute();
-  activate Controller;
-    Controller  -> Model : get();
-    activate Model;
-    Model      --> Controller : Object;
-    deactivate Model;
-    Controller  -> View : render();
-    activate View;
-    View       --> Controller : HTML;
-    deactivate View;
-    Controller ->> Application : Response;
-  deactivate Controller;
-  deactivate Router;
-  deactivate Application;
-@enduml
-)
+```
+,-----------.           ,------.          ,----------.        ,-----.    ,----.
+|Application|           |Router|          |Controller|        |Model|    |View|
+`-----+-----'           `--+---'          `----+-----'        `--+--'    `-+--'
+     ,-. dispatch(request) ,-.                 |                 |         |
+     |X| ----------------->|X|                 |                 |         |
+     |X|                   |X|                 |                 |         |
+     |X|                   |X|    execute()    ,-.               |         |
+     |X|                   |X| --------------->|X|               |         |
+     |X|                   |X|                 |X|               |         |
+     |X|                   |X|                 |X|    get()     ,-.        |
+     |X|                   |X|                 |X| ------------>|X|        |
+     |X|                   |X|                 |X|              |X|        |
+     |X|                   |X|                 |X|    Object    |X|        |
+     |X|                   |X|                 |X| <-  - - -- - |X|        |
+     |X|                   |X|                 |X|              `-'        |
+     |X|                   |X|                 |X|          render()       ,-.
+     |X|                   |X|                 |X| ----------------------->|X|
+     |X|                   |X|                 |X|               |         |X|
+     |X|                   |X|                 |X|            HTML         |X|
+     |X|                   |X|                 |X| <-  - - -- - - - - - - -|X|
+     |X|                   |X|                 |X|               |         `-'
+     |X|               Response                |X|               |         |
+     |X| <-------------------------------------|X|               |         |
+,----`-'----.           ,--`-'-.          ,----`-'---.        ,--+--.    ,-+--.
+|Application|           |Router|          |Controller|        |Model|    |View|
+`-----------'           `------'          `----------'        `-----'    `----'
+```
+
+
+> Nota: debido a la naturaleza efímera de una aplicación web la cual es
+instanciada una vez por cada request que llegue al servidor y en cuya ejecución
+solo tendremos una instancia de nuestra clase `Request`, una de `Application`,
+un `Router`, etc, utilizaremos el patron [singleton][] en varias ocasiones. Esto
+es simplemente una cuestión de diseño y se detallara el porque en cada caso que
+se utilice.
+
+[singleton]: https://en.wikipedia.org/wiki/Singleton_pattern
+
+[Application](app/core/application.php)
+-----------------------------------------
+
+Este objeto se encarga de inicializar el recorrido del request así como también
+controlar el flujo de ejecución y la respuesta en caso de errores.
+
+Es importante remarcar que, para Nginx, una vez que logra despachar el request a
+nuestro interprete de PHP el código de respuesta siempre sera un `200 OK` sin
+importar lo que suceda dentro de nuestra aplicación, es por esto que en caso de
+algún tipo de error interno nuestra aplicación debería responder con el código
+adecuado.
+
+Si bien la lista de códigos de estado es [extensa][http_status_codes] nosotros
+nos limitaremos a unos pocos:
+
+- `200 OK`: Respuesta correcta.
+- `302 Redirect`: Redirection a otra URL.
+- `403 Unauthorized`: No se cuenta con los permisos necesarios para acceder a la
+    URL requerida.
+- `404 Not Found`: No se encuentra el recurso requerido.
+- `500 Internal Error`: Por alguna razón nuestra aplicación exploto.
+
+[http_status_codes]: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+
+
+[Request](app/core/request.php)
+---------------------------------
+
+Para funcionar, nuestra aplicación depende de un `Request`, ahora bien, que es
+el request? Que datos tiene? Como se forma? Y por que?
+
+Cuando el servidor web invoca a nuestra aplicación pone a nuestra disposición
+determinada información acerca de el mismo y del request actual, el problema es
+que para accederla debemos hacerlo a través de variables
+[superglobales][php_superglobals] de PHP lo cual hace a nuestro código poco
+mantenible. Las variables que nos interesan en particular son las siguientes:
+
+- `$_SERVER`: contiene información acerca del servidor.
+- `$_GET`: contiene los parámetros pasados por `GET`.
+- `$_POST`: contiene los parámetros pasados por `POST`.
+
+[php_superglobals]: http://php.net/manual/es/language.variables.superglobals.php
+
+Para facilitar entonces nuestro trabajo, crearemos la clase `Request` con la
+cual encapsularemos los datos que nos importan de dichas variables.
+
+Siguiendo nuestra interfaz definida en `index.php` deberíamos crear el método de
+clase `Request::current()` el cual nos devolverá la única instancia del request
+actual. Aplicaremos el patron singleton aquí ya que no necesitamos mas que una
+instancia.
+
+```php
+  public static function current()
+  {
+    if (!isset(self::$current))
+    {
+      self::$current = self::fromSuperGlobals();
+    }
+
+    return self::$current;
+  }
+```
+
+Esto nos lleva al método que realmente nos importa:
+`Request::fromSuperGlobals()` el cual sera el que efectivamente cree la
+instancia.
+
+
+```php
+  public static function fromSuperGlobals()
+  {
+    $instance = new self;
+    try {
+      $instance->uri    = self::sanitizeUri($_SERVER['REQUEST_URI']);
+      $instance->method = self::spoofMethod();
+      $instance->params = self::getParamsFor($instance);
+    } finally {
+      return $instance;
+    }
+  }
+```
+
+De `$_SERVER` sacaremos entonces el [URI][] pero debemos sanitizarlo ya que
+puede contener mas información de la que necesitamos. Supongamos que nos llega
+el request `http:nutzen.io/home?offset=3`. Si bien dentro de `$_GET`
+dispondremos del parámetro `offset`, este también se encuentra en la URI por lo
+cual simplemente borraremos todo lo que aparece después del `?` el cual delimita
+los parámetros del recurso en si.
+
+
+A continuación le daremos soporte básico a nuestra aplicación para hacer [method
+spoofing][method_spoofing] lo cual nos habilitara para hacer rutas restful mas
+adelante. Esta tarea comúnmente es realizada por un middleware, pero la
+simplificaremos y la incluiremos dentro del mismo objeto request:
+
+
+```php
+  public static function spoofMethod()
+  {
+    $method = $_SERVER['REQUEST_METHOD'];
+
+    if ($method == 'POST')
+    {
+      $method = isset($_POST['_method']) ? $_POST['_method'] : $method;
+    }
+
+    return strtoupper($method);
+  }
+```
+
+
+
+[uri]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
+[method_spoofing]:
+
+
+Router
+------
+
+Como ya dijimos, la interacción con entre cliente y servidor se realiza en base
+a URLS o rutas, tanto es así, que son las rutas de nuestra aplicación las que
+definirán que lógica ejecutar ante diferentes requests y por lo tanto son de
+suma importancia.
+
+
+
+
