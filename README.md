@@ -6,10 +6,10 @@ palabras, completamente inconexas, `nut` (loco) y `zen` (estado de paz).
 
 El antes y depuse de leer esto:
 
- |  antes  |  después  |
- |:-------:|:---------:|
- |  :rage: | :relaxed: |
- |   Nut   |    Zen    |
+|  antes  |  después  |
+|:-------:|:---------:|
+|  :rage: | :relaxed: |
+|   Nut   |    Zen    |
 
 La idea de este proyecto es explicar de la forma mas sencilla posible el
 funcionamiento de una aplicación web basada en estándares utilizados en
