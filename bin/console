@@ -1,0 +1,12 @@
+#!/usr/bin/env php
+<?php
+
+define('__SHELL_ROOT__', dirname(__FILE__));
+
+require_once __SHELL_ROOT__ . '/../app/init.php';
+
+$app = new App\Core\Application('development');
+
+require_once __SHELL_ROOT__ . '/../vendor/psy/psysh/bin/psysh';
+
+eval(\Psy\sh());
