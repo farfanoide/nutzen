@@ -79,18 +79,18 @@ como funciona una pagina web desde el principio. ¿Como pedimos una pagina web?,
         _____
        /  _)))
       (___|''-
-        ; _=                                                                    _______________
-     ___//_   /_    _________    REQUEST: 'http://farfanoi.de/index.html'      |  ___________  |
-    /)  \/ )  ))   |.        |_                   .-,(  ),-.                   | |           | |
-   //| - -/\\/;    |.        |:|  --------->   .-(          )-.   --------->   | |   0   0   | |
-  |/ |   /  \/     |.        |/               (    internet    )               | |     -     | |
-  ;  :::::         |_________|                 '-(          ).-'               | |   \___/   | |
-_(/ //////\\\\\     __|___|__     <---------       '-.( ).-'      <---------   | |___     ___| |
-/|_//////// / /____[_________]_                                                |_____|\_/|_____|
-          |/|/                                                                       |\|/|
-          | |                   RESPONSE: '<html> jellou worlds </html>'        / ************ \
-         (|(|                                                                  /  ************* \
-        ,||||                                                                  -------------------
+        ; _=                 REQUEST: 'http://farfanoi.de/index.html'      _______________
+     ___//_   /_   ______                                                 |  ___________  |
+    /)  \/ )  ))  |.     |_                   .-,(  ),-.                  | |           | |
+   //| - -/\\/;   |.     |:|  --------->   .-(          )-.   --------->  | |   0   0   | |
+  |/ |   /  \/    |.     |/               (    internet    )              | |     -     | |
+  ;  :::::        |______|                 '-(          ).-'              | |   \___/   | |
+_(/ //////\\\\\    __||__     <---------       '-.( ).-'      <---------  | |___     ___| |
+/|_//////// / /___[______]_                                               |_____|\_/|_____|
+          |/|/                                                                  |\|/|
+          | |               RESPONSE: '<html> jellou worlds </html>'       / ************ \
+         (|(|                                                             /  ************* \
+        ,||||                                                            --------------------
          '='=
 ```
 
@@ -254,7 +254,7 @@ $response = $app->run(Request::current());
 // Finalmente retornamos la respuesta al servidor web
 // -----------------------------------------------------------
 
-echo $response->send();
+$response->send();
 ```
 
 O dicho mas gráficamente:
@@ -275,11 +275,11 @@ O dicho mas gráficamente:
      |X|                   |X|                 |X|    Object    |X|        |
      |X|                   |X|                 |X| <-  - - -- - |X|        |
      |X|                   |X|                 |X|              `-'        |
-     |X|                   |X|                 |X|          render()       ,-.
+     |X|                   |X|                 |X|    render()   |         ,-.
      |X|                   |X|                 |X| ----------------------->|X|
      |X|                   |X|                 |X|               |         |X|
-     |X|                   |X|                 |X|            HTML         |X|
-     |X|                   |X|                 |X| <-  - - -- - - - - - - -|X|
+     |X|                   |X|                 |X|    HTML       |         |X|
+     |X|                   |X|                 |X| <-  - - - - - |- - - - -|X|
      |X|                   |X|                 |X|               |         `-'
      |X|               Response                |X|               |         |
      |X| <-------------------------------------|X|               |         |
@@ -306,9 +306,9 @@ controlar el flujo de ejecución y la respuesta en caso de errores.
 
 Es importante remarcar que, para Nginx, una vez que logra despachar el request a
 nuestro interprete de PHP el código de respuesta siempre sera un `200 OK` sin
-importar lo que suceda dentro de nuestra aplicación, es por esto que en caso de
-algún tipo de error interno nuestra aplicación debería responder con el código
-adecuado.
+importar lo que suceda dentro de nuestra aplicación, es por esto que nos
+corresponde a nosotros responder con un codigo que represente adecuadamente la
+el estado de la respuesta.
 
 Si bien la lista de códigos de estado es [extensa][http_status_codes] nosotros
 nos limitaremos a unos pocos:
@@ -326,11 +326,11 @@ nos limitaremos a unos pocos:
 [Request](app/core/request.php)
 ---------------------------------
 
-Para funcionar, nuestra aplicación depende de un `Request`, ahora bien, que es
-el request? Que datos tiene? Como se forma? Y por que?
+Para funcionar, nuestra aplicación depende de un `Request`, ahora bien, ¿que es
+el request?, ¿que datos tiene?, ¿como se forma? Y ¿por que?
 
 Cuando el servidor web invoca a nuestra aplicación pone a nuestra disposición
-determinada información acerca de el mismo y del request actual, el problema es
+determinada información acerca de él mismo y del request actual, el problema es
 que para accederla debemos hacerlo a través de variables
 [superglobales][php_superglobals] de PHP lo cual hace a nuestro código poco
 mantenible. Las variables que nos interesan en particular son las siguientes:
@@ -342,12 +342,11 @@ mantenible. Las variables que nos interesan en particular son las siguientes:
 [php_superglobals]: http://php.net/manual/es/language.variables.superglobals.php
 
 Para facilitar entonces nuestro trabajo, crearemos la clase `Request` con la
-cual encapsularemos los datos que nos importan de dichas variables.
+cual encapsularemos el acceso a dichas variables.
 
-Siguiendo nuestra interfaz definida en `index.php` deberíamos crear el método de
-clase `Request::current()` el cual nos devolverá la única instancia del request
-actual. Aplicaremos el patron singleton aquí ya que no necesitamos mas que una
-instancia.
+Siguiendo la interfaz definida en `index.php` deberíamos crear el método de
+clase `Request::current()`, el cual nos devolverá el request actual. Aplicaremos
+el patron singleton aquí ya que no necesitamos mas que una instancia.
 
 ```php
   public static function current()
@@ -365,63 +364,57 @@ Esto nos lleva al método que realmente nos importa:
 `Request::fromSuperGlobals()` el cual sera el que efectivamente cree la
 instancia.
 
+Es aqui donde nos encargaremos de sanitizar algunos datos como por ejemplo el
+URI requerido. Este lo podemos encontrar en `$_SERVER`.
+
+Al igual que todas las otras superglobales, `$_SERVER` es un arreglo asociativo
+con lo cual podremos accederlo de la siguiente manera:
 
 ```php
-  public static function fromSuperGlobals()
-  {
-    $instance = new self;
-    try {
-      $instance->uri    = self::sanitizeUri($_SERVER['REQUEST_URI']);
-      $instance->method = self::spoofMethod();
-      $instance->params = self::getParamsFor($instance);
-    } finally {
-      return $instance;
-    }
-  }
+$_SERVER['REQUEST_URI']
 ```
 
-De `$_SERVER` sacaremos entonces el [URI][] pero debemos sanitizarlo ya que
-puede contener mas información de la que necesitamos. Supongamos que nos llega
-el request `http:nutzen.io/home?offset=3`. Si bien dentro de `$_GET`
-dispondremos del parámetro `offset`, este también se encuentra en la URI por lo
-cual simplemente borraremos todo lo que aparece después del `?` el cual delimita
-los parámetros del recurso en si.
+Supongamos que nos llega el request `http:nutzen.io/home?offset=3`. Si bien
+dentro de `$_GET` dispondremos del parámetro `offset`, este también se encuentra
+en el URI por lo cual simplemente lo partiremos en la primer aparicion del
+caracter `?` (el cual actua como delimitador entre el URI y los parametros
+recibidos por `GET`) y nos quedaremos unicamente con el primer elemento del
+resultado.
 
+[uri]: https://es.wikipedia.org/wiki/Uniform_Resource_Identifier
 
 A continuación le daremos soporte básico a nuestra aplicación para hacer [method
-spoofing][method_spoofing] lo cual nos habilitara para hacer rutas restful mas
-adelante. Esta tarea comúnmente es realizada por un middleware, pero la
-simplificaremos y la incluiremos dentro del mismo objeto request:
+spoofing][method_spoofing] lo cual nos habilitara a hacer rutas restful mas
+adelante.
 
+Esta tarea comúnmente es realizada por algun middleware, pero la simplificaremos
+y la incluiremos dentro del mismo objeto request comprobando haber recibido por
+`POST` un parametro con nombre `_method` cuyo valor representara efectivamente
+el metodo del request actual.
 
-```php
-  public static function spoofMethod()
-  {
-    $method = $_SERVER['REQUEST_METHOD'];
+[method_spoofing]: http://laravel.com/docs/master/routing#form-method-spoofing
 
-    if ($method == 'POST')
-    {
-      $method = isset($_POST['_method']) ? $_POST['_method'] : $method;
-    }
+> Nota: no estamos corroborando que el metodo recibido sea soportado. Mas acerca
+> de este tema en la seccion dedicada al ruteador.
 
-    return strtoupper($method);
-  }
-```
-
-
-
-[uri]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
-[method_spoofing]:
+Resta entonces solamente asegurarnos de tomar los parametros correspondientes:
+En caso de ser un request `GET` utilizaremos aquellos alojados en la superglobal
+`$_GET` caso contrario utilizaremos `$_POST`.
 
 
 Router
 ------
 
 Como ya dijimos, la interacción con entre cliente y servidor se realiza en base
-a URLS o rutas, tanto es así, que son las rutas de nuestra aplicación las que
+a URLS o rutas.  tanto es así, que son las rutas de nuestra aplicación las que
 definirán que lógica ejecutar ante diferentes requests y por lo tanto son de
 suma importancia.
 
+
+- `GET`:
+- `POST`:
+- `PUT`:
+- `DELETE`:
 
 
 
