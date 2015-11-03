@@ -1,6 +1,15 @@
 NutZen
 ======
 
+```
+Disclaimer: el contenido de este repositorio es completamente subjetivo a mi
+concepcion de los temas aqui tratados. Si bien trato de adecuarme a las buenas
+practicas del mundillo del desarrollo web, esto no deberia ser tomado como LA
+FORMA de hacer las cosas, sino simplemente como una guia para comprender mejor
+que es lo que sucede en determinadas situaciones y porque optamos por resolver
+de cierta forma y no de otra.
+```
+
 De la palabra germana `nutzen` (aprovechar, usar) o su descomposición en las
 palabras, completamente inconexas, `nut` (loco) y `zen` (estado de paz).
 
