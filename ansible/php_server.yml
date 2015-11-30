@@ -1,0 +1,69 @@
+---
+- hosts: all
+  sudo: yes
+
+  handlers:
+    - name: Restart Nginx
+      service: name=nginx state=restarted
+
+    - name: Restart php-fpm
+      service: name=php5-fpm state=restarted
+
+  tasks:
+
+    - name: Add nginx ppa
+      apt_repository: repo='ppa:nginx/stable' state=present update_cache=yes
+
+    - name: Install packages
+      apt: pkg={{ item }} state=latest
+      with_items:
+        - nginx
+        - mysql-server
+        - mysql-client
+        - php5-mysql
+        - php5-fpm
+        - php5
+        - php5-cli
+        - php5-mcrypt
+        - curl
+
+    - name: Configure Nginx default host
+      copy: src=files/default.conf dest=/etc/nginx/sites-available/default
+      notify: Restart Nginx
+
+    - name: Enable default host
+      file: src=/etc/nginx/sites-available/default dest=/etc/nginx/sites-enabled/default state=link force=yes
+      notify: Restart Nginx
+
+    - name: Configure php-fpm
+      lineinfile: dest=/etc/php5/fpm/php.ini line='cgi.fix_pathinfo=0' state=present
+      notify: Restart php-fpm
+
+    - name: Check for mcrypt extension
+      shell: php -m | grep mcrypt
+      register: mcrypt_installed
+      ignore_errors: yes
+
+    - name: Enable mcrypt extension
+      shell: php5enmod mcrypt
+      when: mcrypt_installed|failed
+
+    - name: Load new shells directly in /vagrant
+      lineinfile: >
+        dest="/home/vagrant/.bashrc"
+        line="cd /vagrant"
+        create=yes state=present
+        group=vagrant owner=vagrant
+
+    - name: Install PHPUnit
+      get_url: >
+        url='https://phar.phpunit.de/phpunit.phar'
+        dest=/usr/local/bin/phpunit
+        mode=777
+
+    - name: Install Composer
+      sudo: yes
+      shell: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer creates=/usr/local/bin/composer
+
+    - name: Install composer dependencies
+      composer: command=install working_dir=/vagrant
