@@ -7,10 +7,10 @@ use App\Core\Engine as Engine;
 class View
 {
 
-  protected $context = [];
+  protected $context;
   protected $engine;
 
-  function __construct($template, $context, $engine = NULL)
+  function __construct($template, $context = [], $engine = NULL)
   {
     $this->template = $template;
     $this->context  = $context;

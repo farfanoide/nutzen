@@ -62,7 +62,7 @@ class request
     $instance = new self();
 
     $instance->uri    = self::sanitizeUri($_SERVER['REQUEST_URI']);
-    $instance->method = self::spoofMethod();
+    $instance->method = self::spoofMethod($instance->method);
     $instance->params = self::getParamsFor($instance);
 
     return $instance;
@@ -83,9 +83,9 @@ class request
    *
    * @return string
    */
-  public static function spoofMethod()
+  public static function spoofMethod($method)
   {
-    $method = $_SERVER['REQUEST_METHOD'];
+    $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : $method;
 
     if ($method == 'POST')
     {

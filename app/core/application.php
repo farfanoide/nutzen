@@ -2,7 +2,6 @@
 
 namespace App\Core;
 
-use App\Core\Session as Session;
 use App\Core\Router as Router;
 
 class application

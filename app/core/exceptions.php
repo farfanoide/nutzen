@@ -8,7 +8,7 @@ class NotFoundException extends \Exception
   protected $message = 'No se ha encontrado lo que esta buscando.';
 }
 
-class UnauthorizedException  extends \Exception
+class UnauthorizedException extends \Exception
 {
   protected $code    = 403;
   protected $message = 'No tiene los permisos necesarios para realizar esa accion.';

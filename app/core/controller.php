@@ -20,9 +20,9 @@ class Controller
     return $this;
   }
 
-  public function view($view, $params = [])
+  public function view($template, $params = [])
   {
-    $this->response->content = (new View($view, $params))->render();
+    $this->response->content = (new View($template, $params))->render();
   }
 
   public function withMessage($type, $message)
