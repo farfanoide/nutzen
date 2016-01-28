@@ -1,0 +1,4 @@
+app/config/database.php
+tmp/*
+.vagrant
+vendor/
