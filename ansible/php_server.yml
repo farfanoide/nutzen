@@ -1,6 +1,6 @@
 ---
 - hosts: all
-  sudo: yes
+  become: yes
 
   handlers:
     - name: Restart Nginx
@@ -28,7 +28,7 @@
         - curl
 
     - name: Configure Nginx default host
-      copy: src=files/default.conf dest=/etc/nginx/sites-available/default
+      copy: src=files/default.nginx dest=/etc/nginx/sites-available/default
       notify: Restart Nginx
 
     - name: Enable default host
@@ -62,7 +62,7 @@
         mode=777
 
     - name: Install Composer
-      sudo: yes
+      become: yes
       shell: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer creates=/usr/local/bin/composer
 
     - name: Install composer dependencies
