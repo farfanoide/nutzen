@@ -2,7 +2,7 @@
 
 namespace App\Core;
 
-class route
+class Route
 {
   public $pattern;
   public $method;

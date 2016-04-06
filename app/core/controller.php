@@ -11,7 +11,7 @@ class Controller
 
   public function __construct()
   {
-    $this->response = new Response;
+    $this->response = new Response();
   }
 
   public function redirect($url, $statusCode = 302)

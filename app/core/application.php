@@ -4,7 +4,7 @@ namespace App\Core;
 
 use App\Core\Router as Router;
 
-class application
+class Application
 {
 
   public $request;

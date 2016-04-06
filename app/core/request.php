@@ -8,7 +8,7 @@ namespace App\Core;
  *
  * @author Farfanoide <ivan6258@gmail.com>
  */
-class request
+class Request
 {
   /**
    * @var string

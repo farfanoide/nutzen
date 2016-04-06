@@ -2,7 +2,7 @@
 
 namespace App\Core;
 
-class router
+class Router
 {
   private static $instance = NULL;
 

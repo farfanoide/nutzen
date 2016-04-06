@@ -81,7 +81,12 @@ class Response
    */
   public function withStatus($statusCode)
   {
-    $this->status = $statusCode;
+    if ($statusCode >= 200 && $statusCode <=599)
+    {
+      $this->status = $statusCode;
+    } else {
+      throw new Exception(500, 'Invalid Status Code for response.');
+    }
 
     return $this;
   }
