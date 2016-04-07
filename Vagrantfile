@@ -11,7 +11,5 @@ Vagrant.configure(2) do |config|
     v.memory = 1024
   end
 
-  config.vm.provision 'ansible' do |ansible|
-    ansible.playbook = 'ansible/php_server.yml'
-  end
+  config.vm.provision :shell, path: 'vm_setup.sh'
 end
