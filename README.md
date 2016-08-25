@@ -318,6 +318,7 @@ nos limitaremos a unos pocos:
 - `404 Not Found`: El recurso requerido no se encuentra en el servidor.
 - `500 Internal Error`: Por alguna razón nuestra aplicación exploto(B-b-b-break!).
 
+> [Algunos codigos de estado extra ;)][extra_http_status_codes]
 
 
 [Request](app/core/request.php)
@@ -453,7 +454,6 @@ request atendido sea por `GET`.
 __El orden en que las rutas son definidas es de suma importancia__
 
 
-
 Router Extra:
 -------------
 
@@ -474,6 +474,7 @@ Router Extra:
 [mvc]: https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller
 [singleton]: https://en.wikipedia.org/wiki/Singleton_pattern
 [http_status_codes]: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+[extra_http_status_codes]: https://github.com/joho/7XX-rfc
 [php_superglobals]: http://php.net/manual/es/language.variables.superglobals.php
 [uri]: https://es.wikipedia.org/wiki/Uniform_Resource_Identifier
 [method_spoofing]: http://laravel.com/docs/master/routing#form-method-spoofing
