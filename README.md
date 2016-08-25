@@ -418,13 +418,13 @@ Un ejemplo de rutas para la gestion del CRUD de un recurso como usuarios se
 podria ver asi:
 
 ```php
-Router::get('/users', 'UsersController#index');
-Router::get('/users/new', 'UsersController#new');
-Router::post('/users', 'UsersController#create');
-Router::get('/users/:id', 'UsersController#show');
+Router::get('/users',          'UsersController#index');
+Router::get('/users/new',      'UsersController#new');
+Router::post('/users',         'UsersController#create');
+Router::get('/users/:id',      'UsersController#show');
 Router::put('/users/:id/edit', 'UsersController#edit');
-Router::put('/users/:id', 'UsersController#update');
-Router::delete('/users/:id', 'UsersController#destroy');
+Router::put('/users/:id',      'UsersController#update');
+Router::delete('/users/:id',   'UsersController#destroy');
 ```
 
 Aqui podemos ver mas en detalle como podemos aprovechar los verbos HTTP para
@@ -435,21 +435,24 @@ agregar semantica a las rutas disponibles.
 - `PUT` para modificar recursos ya existentes.
 - `DELETE` para eliminarlos.
 
-Lamentablemente los navegadores (ej: Chrome, Firefox, etc) otro methodo que no
-sea `GET` o `POST` por lo cual nos vemos obligados a compensar por esta falencia
-valiendonos de tecnicas como `method spoofing` para poder hacer uso de el resto.
+Lamentablemente los navegadores (ej: Chrome, Firefox, etc) no comprenden otro
+metodo que no sea `GET` o `POST` por lo cual nos vemos obligados a compensar por
+esta falencia valiendonos de tecnicas como `method spoofing` para poder hacer
+uso de el resto.
 
-Como ya vimos en la seccion del objeto `Request`, esta tecnica es bastante
-simple y consta simplemente de mandar un parametro extra llamado `_method` en
-nuestro request para asi reconocer en el servidor el verbo HTTP que se desea
-utilizar.
+Dicha tecnica es bastante simple y consta simplemente de mandar un parametro
+extra llamado `_method` en nuestro request para asi reconocer en el servidor el
+verbo HTTP que se desea utilizar. Normalmente esto solo sucede cuando queremos
+hacer requests de tipo `PUT` o `DELETE`. Enviaremos entonces un request por
+`POST` adjuntando, por ej: `_method=DELETE` entre los datos enviados al
+servidor.
 
 Valiendonos de estos verbos, podemos entonces optimizar un poco la busqueda de
-un match reduciendo la comparacion unicamente a las rutas determinadas
-especificamente para un verbo en particular, lo cual nos brinda ademas una
-pequenia capa extra de seguridad extra ya que no permitiriamos jamaz que se
-ejecute codigo "destructivo" preparado para un request por `POST` cuando el
-request atendido sea por `GET`.
+un match entre las rutas reduciendo la comparacion unicamente a aquellas
+determinadas especificamente para un verbo en particular, lo cual nos brinda
+ademas una pequenia capa extra de seguridad extra ya que no permitiriamos jamaz
+que se ejecute codigo "destructivo" preparado para un request por `POST` cuando
+el request atendido haya sido recibido, por ejemplo, por `GET`.
 
 __El orden en que las rutas son definidas es de suma importancia__
 
