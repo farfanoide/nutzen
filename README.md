@@ -11,9 +11,9 @@ de cierta forma y no de otra.
 ```
 
 De la palabra germana `nutzen` (aprovechar, usar) o su descomposición en las
-palabras, completamente inconexas, `nut` (loco) y `zen` (estado de paz).
+palabras (completamente inconexas) `nut` (loco) y `zen` (estado de paz).
 
-El antes y depuse de leer esto:
+Creando nuestro primer sitio web, el antes y despues de leer esto:
 
 |  antes  |  después  |
 |:-------:|:---------:|
@@ -24,8 +24,8 @@ La idea de este proyecto es explicar de la forma mas sencilla posible el
 funcionamiento de una aplicación web basada en estándares utilizados en
 frameworks como [Rails][], [Django][] o [Laravel][].
 
-Mi intención no es entrar demasiado en detalle ya que hay materias enteras
-dedicadas a cada instancia de este proceso, por lo cual el siguiente texto no
+Mi intención no es entrar demasiado en detalle ya que hay libros enteros
+dedicados a cada instancia de este proceso, por lo cual el siguiente texto no
 _deberia_ extenderse demasiado.
 
 
@@ -37,23 +37,10 @@ Tecnologías que usaremos:
 - [Nginx][]
 - [MySQL][]
 
-[laravel]: http://laravel.com/
-[rails]: http://rubyonrails.org/
-[django]: https://www.djangoproject.com/
-[php]: https://secure.php.net/
-[css]: https://en.wikipedia.org/wiki/Cascading_Style_Sheets
-[nginx]: https://www.nginx.com/
-[mysql]: https://www.mysql.com/
-
 Mas tecnologías utilizadas pero no explicadas (lo dejamos para el curioso):
 
 - [Vagrant][]
 - [Ansible][]
-
-[vagrant]: https://www.vagrantup.com/
-[ansible]: http://www.ansible.com/
-
-
 
 Temas a tocar
 -------------
@@ -168,6 +155,15 @@ Resumiendo hasta aquí:
    lindas que estamos acostumbrados a ver.
 
 
+Interacción entre el servidor web y PHP
+---------------------------------------
+
+
+Todo nuestro codigo por mas modularizado y objetoso que parezca, en esencia no
+es mas que un script, y es asi como el servidor lo maneja, lo invoca pasandole
+informacion del request actual mediante variables de entorno las cuales nuestro
+interprete se encargara de dejarnos disponibles.
+
 Disposición de nuestra aplicación
 ----------------------------------
 
@@ -182,12 +178,6 @@ Nuevamente pecando de simplista me atrevo a enumerar lo siguiente:
 - Debe respetar el patron [MVC][].
 
 - Debe soportar [pretty urls][].
-
-
-[pretty urls]: https://en.wikipedia.org/wiki/Semantic_URL
-[mvc]: https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller
-
-
 
 
 La aplicación y sus partes
@@ -269,43 +259,42 @@ $response->send();
 O dicho mas gráficamente:
 
 ```
-,-----------.           ,------.          ,----------.        ,-----.    ,----.
-|Application|           |Router|          |Controller|        |Model|    |View|
-`-----+-----'           `--+---'          `----+-----'        `--+--'    `-+--'
-     ,-. dispatch(request) ,-.                 |                 |         |
-     |X| ----------------->|X|                 |                 |         |
-     |X|                   |X|                 |                 |         |
-     |X|                   |X|    execute()    ,-.               |         |
-     |X|                   |X| --------------->|X|               |         |
-     |X|                   |X|                 |X|               |         |
-     |X|                   |X|                 |X|    get()     ,-.        |
-     |X|                   |X|                 |X| ------------>|X|        |
-     |X|                   |X|                 |X|              |X|        |
-     |X|                   |X|                 |X|    Object    |X|        |
-     |X|                   |X|                 |X| <-  - - -- - |X|        |
-     |X|                   |X|                 |X|              `-'        |
-     |X|                   |X|                 |X|    render()   |         ,-.
-     |X|                   |X|                 |X| ----------------------->|X|
-     |X|                   |X|                 |X|               |         |X|
-     |X|                   |X|                 |X|    HTML       |         |X|
-     |X|                   |X|                 |X| <-  - - - - - |- - - - -|X|
-     |X|                   |X|                 |X|               |         `-'
-     |X|               Response                |X|               |         |
-     |X| <-------------------------------------|X|               |         |
-,----`-'----.           ,--`-'-.          ,----`-'---.        ,--+--.    ,-+--.
-|Application|           |Router|          |Controller|        |Model|    |View|
-`-----------'           `------'          `----------'        `-----'    `----'
+,-----------.           ,------.        ,----------.        ,-----.    ,----.
+|Application|           |Router|        |Controller|        |Model|    |View|
+`-----+-----'           `--+---'        `----+-----'        `--+--'    `-+--'
+     ,-. dispatch(request) ,-.               |                 |         |
+     |X| ----------------->|X|               |                 |         |
+     |X|                   |X|               |                 |         |
+     |X|                   |X|  execute()    ,-.               |         |
+     |X|                   |X| ------------->|X|               |         |
+     |X|                   |X|               |X|               |         |
+     |X|                   |X|               |X|    get()     ,-.        |
+     |X|                   |X|               |X| ------------>|X|        |
+     |X|                   |X|               |X|              |X|        |
+     |X|                   |X|               |X|    Object    |X|        |
+     |X|                   |X|               |X| <------------|X|        |
+     |X|                   |X|               |X|              `-'        |
+     |X|                   |X|               |X|    render(context)      ,-.
+     |X|                   |X|               |X| ----------------------->|X|
+     |X|                   |X|               |X|               |         |X|
+     |X|                   |X|               |X|    HTML       |         |X|
+     |X|                   |X|               |X| <-----------------------|X|
+     |X|                   |X|               |X|               |         `-'
+     |X|               Response              |X|               |         |
+     |X| <-----------------------------------|X|               |         |
+,----`-'----.           ,--`-'-.        ,----`-'---.        ,--+--.    ,-+--.
+|Application|           |Router|        |Controller|        |Model|    |View|
+`-----------'           `------'        `----------'        `-----'    `----'
 ```
 
 
 > Nota: debido a la naturaleza efímera de una aplicación web la cual es
-instanciada una vez por cada request que llegue al servidor y en cuya ejecución
-solo tendremos una instancia de nuestra clase `Request`, una de `Application`,
-un `Router`, etc, utilizaremos el patron [singleton][] en varias ocasiones. Esto
-es simplemente una cuestión de diseño y se detallara el porque en cada caso que
-se utilice.
+> instanciada una vez por cada request que llegue al servidor y en cuya
+> ejecución solo tendremos una instancia de nuestra clase `Request`, una de
+> `Application`, un `Router`, etc, utilizaremos el patron [singleton][] en
+> varias ocasiones. Esto es simplemente una cuestión de diseño y se detallara el
+> porque en cada caso que se utilice.
 
-[singleton]: https://en.wikipedia.org/wiki/Singleton_pattern
 
 [Application](app/core/application.php)
 -----------------------------------------
@@ -316,20 +305,19 @@ controlar el flujo de ejecución y la respuesta en caso de errores.
 Es importante remarcar que, para Nginx, una vez que logra despachar el request a
 nuestro interprete de PHP el código de respuesta siempre sera un `200 OK` sin
 importar lo que suceda dentro de nuestra aplicación, es por esto que nos
-corresponde a nosotros responder con un codigo que represente adecuadamente la
-el estado de la respuesta.
+corresponde a nosotros responder con un codigo que represente adecuadamente el
+estado de la respuesta.
 
 Si bien la lista de códigos de estado es [extensa][http_status_codes] nosotros
 nos limitaremos a unos pocos:
 
 - `200 OK`: Respuesta correcta.
-- `302 Redirect`: Redirection a otra URL.
+- `302 Redirect`: Redireccion a otra URL.
 - `403 Unauthorized`: No se cuenta con los permisos necesarios para acceder a la
     URL requerida.
-- `404 Not Found`: No se encuentra el recurso requerido.
-- `500 Internal Error`: Por alguna razón nuestra aplicación exploto.
+- `404 Not Found`: El recurso requerido no se encuentra en el servidor.
+- `500 Internal Error`: Por alguna razón nuestra aplicación exploto(B-b-b-break!).
 
-[http_status_codes]: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 
 
 [Request](app/core/request.php)
@@ -348,7 +336,6 @@ mantenible. Las variables que nos interesan en particular son las siguientes:
 - `$_GET`: contiene los parámetros pasados por `GET`.
 - `$_POST`: contiene los parámetros pasados por `POST`.
 
-[php_superglobals]: http://php.net/manual/es/language.variables.superglobals.php
 
 Para facilitar entonces nuestro trabajo, crearemos la clase `Request` con la
 cual encapsularemos el acceso a dichas variables.
@@ -390,8 +377,6 @@ caracter `?` (el cual actua como delimitador entre el URI y los parametros
 recibidos por `GET`) y nos quedaremos unicamente con el primer elemento del
 resultado.
 
-[uri]: https://es.wikipedia.org/wiki/Uniform_Resource_Identifier
-
 A continuación le daremos soporte básico a nuestra aplicación para hacer [method
 spoofing][method_spoofing] lo cual nos habilitara a hacer rutas restful mas
 adelante.
@@ -401,7 +386,6 @@ y la incluiremos dentro del mismo objeto request comprobando haber recibido por
 `POST` un parametro con nombre `_method` cuyo valor representara efectivamente
 el metodo del request actual.
 
-[method_spoofing]: http://laravel.com/docs/master/routing#form-method-spoofing
 
 > Nota: no estamos corroborando que el metodo recibido sea soportado. Mas acerca
 > de este tema en la seccion dedicada al ruteador.
@@ -411,19 +395,85 @@ En caso de ser un request `GET` utilizaremos aquellos alojados en la superglobal
 `$_GET` caso contrario utilizaremos `$_POST`.
 
 
-Router
-------
+[Router](app/core/router.php)
+-----------------------------
 
-Como ya dijimos, la interacción con entre cliente y servidor se realiza en base
-a URLS o rutas.  tanto es así, que son las rutas de nuestra aplicación las que
-definirán que lógica ejecutar ante diferentes requests y por lo tanto son de
-suma importancia.
+El `Router` o `Ruteador` es el encargado de conocer las rutas disponibles de la
+aplicación y relacionarlas con la logica correspondiente para su correcta
+atencion.
+
+Veamos algunos ejemplos de configuraciones de rutas:
+
+```php
+Router::get('/', 'HomeController#index');
+```
+
+Esta es una tipicaconfiguracion para mostrar una pagina principal. Debemos
+entender que estamos configurando nuestra aplicación para que sepa atender un
+request por `GET` por el recurso `/` el cual sera atendido por una instancia del
+`HomeController` a la cual se le enviara el mensaje `index`;
+
+Un ejemplo de rutas para la gestion del CRUD de un recurso como usuarios se
+podria ver asi:
+
+```php
+Router::get('/users', 'UsersController#index');
+Router::get('/users/new', 'UsersController#new');
+Router::post('/users', 'UsersController#create');
+Router::get('/users/:id', 'UsersController#show');
+Router::put('/users/:id/edit', 'UsersController#edit');
+Router::put('/users/:id', 'UsersController#update');
+Router::delete('/users/:id', 'UsersController#destroy');
+```
+
+Aqui podemos ver mas en detalle como podemos aprovechar los verbos HTTP para
+agregar semantica a las rutas disponibles.
+
+- `GET` para obtener recursos del servidor.
+- `POST` para crear nuevos recursos en el servidor.
+- `PUT` para modificar recursos ya existentes.
+- `DELETE` para eliminarlos.
+
+Lamentablemente los navegadores (ej: Chrome, Firefox, etc) otro methodo que no
+sea `GET` o `POST` por lo cual nos vemos obligados a compensar por esta falencia
+valiendonos de tecnicas como `method spoofing` para poder hacer uso de el resto.
+
+Como ya vimos en la seccion del objeto `Request`, esta tecnica es bastante
+simple y consta simplemente de mandar un parametro extra llamado `_method` en
+nuestro request para asi reconocer en el servidor el verbo HTTP que se desea
+utilizar.
+
+Valiendonos de estos verbos, podemos entonces optimizar un poco la busqueda de
+un match reduciendo la comparacion unicamente a las rutas determinadas
+especificamente para un verbo en particular, lo cual nos brinda ademas una
+pequenia capa extra de seguridad extra ya que no permitiriamos jamaz que se
+ejecute codigo "destructivo" preparado para un request por `POST` cuando el
+request atendido sea por `GET`.
+
+__El orden en que las rutas son definidas es de suma importancia__
 
 
-- `GET`:
-- `POST`:
-- `PUT`:
-- `DELETE`:
+
+Router Extra:
+-------------
 
 
 
+[laravel]: http://laravel.com/
+[rails]: http://rubyonrails.org/
+[django]: https://www.djangoproject.com/
+[php]: https://secure.php.net/
+[css]: https://en.wikipedia.org/wiki/Cascading_Style_Sheets
+[nginx]: https://www.nginx.com/
+[mysql]: https://www.mysql.com/
+[vagrant]: https://www.vagrantup.com/
+[ansible]: http://www.ansible.com/
+[sapi]: https://en.wikipedia.org/wiki/Server_Application_Programming_Interface
+[php_vars]: https://github.com/php/php-src/blob/master/main/php_variables.c
+[pretty urls]: https://en.wikipedia.org/wiki/Semantic_URL
+[mvc]: https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller
+[singleton]: https://en.wikipedia.org/wiki/Singleton_pattern
+[http_status_codes]: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+[php_superglobals]: http://php.net/manual/es/language.variables.superglobals.php
+[uri]: https://es.wikipedia.org/wiki/Uniform_Resource_Identifier
+[method_spoofing]: http://laravel.com/docs/master/routing#form-method-spoofing
