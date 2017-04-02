@@ -158,11 +158,18 @@ Resumiendo hasta aquí:
 Interacción entre el servidor web y PHP
 ---------------------------------------
 
+Si bien podria parecer tirado de los pelos hablar de esto, creo pertinente
+tener al menos una comprension basica como es ejecutado nuestro codigo, ya que
+esto nos ayudara al momento de encarar el disenio de nuestra arquitectura.
 
-Todo nuestro codigo por mas modularizado y objetoso que parezca, en esencia no
-es mas que un script, y es asi como el servidor lo maneja, lo invoca pasandole
-informacion del request actual mediante variables de entorno las cuales nuestro
-interprete se encargara de dejarnos disponibles.
+Todo nuestro codigo no es mas que un simple script, si, asi de simple...
+Podriamos escribir una aplicacion entera en un solo `index.php` (por favor no lo
+hagas)
+
+Por mas modularizado y objetoso que parezca, en esencia no es mas que un script,
+y es asi como el servidor lo maneja, lo invoca pasandole informacion del request
+actual mediante variables de entorno las cuales nuestro interprete (php en este
+caso) se encargara de hacer disponibles.
 
 Disposición de nuestra aplicación
 ----------------------------------
@@ -211,9 +218,9 @@ demarcaremos el flujo general y su interacción de la forma mas sencilla posible
 siguiendo el `happy path` (ejecución correcta).
 
 Arrancamos entonces por nuestro archivo `index.php` el cual hemos demarcado como
-entry point a nuestra aplicación, este se encargara de requerir los archivos
-necesarios para así disponer de nuestras clases y poder instanciar a nuestro
-primer objeto real, nuestra `Application`.
+entry point. Este se encargara de requerir los archivos necesarios para así
+disponer de nuestras clases y poder instanciar a nuestro primer objeto real,
+nuestra `Application`.
 
 Esta delega el `Request` actual al `Router` para ver si se condice con alguna de
 las `Route` definidas.
@@ -222,7 +229,7 @@ De ser así un `Controller` ejecutara la lógica deseada, esto normalmente
 involucra hacer uso de algún `Model` para buscar datos desde la BBDD y hacerlos
 disponibles para su renderizado en una `View`.
 
-Dicho renderizado se incorpora como el contenido de nuestro `Response` el cual
+Dicho renderizado se incorpora como el body de nuestro `Response` el cual
 es retornado al servidor web para así volver hasta el cliente.
 
 Así pues, siguiendo un formato de desarrollo 'outside-in' o 'afuera-adentro' ya
@@ -409,22 +416,23 @@ Veamos algunos ejemplos de configuraciones de rutas:
 Router::get('/', 'HomeController#index');
 ```
 
-Esta es una tipicaconfiguracion para mostrar una pagina principal. Debemos
-entender que estamos configurando nuestra aplicación para que sepa atender un
-request por `GET` por el recurso `/` el cual sera atendido por una instancia del
-`HomeController` a la cual se le enviara el mensaje `index`;
+Esta es una tipica configuracion para mostrar una pagina principal. Debemos
+entender que esto se traduce en lenguaje coloquial a que estamos configurando
+nuestra aplicación para que sepa atender un request `GET` por el recurso `/` el
+cual sera atendido por una instancia del `HomeController` a la cual se le
+enviara el mensaje `index`;
 
 Un ejemplo de rutas para la gestion del CRUD de un recurso como usuarios se
 podria ver asi:
 
 ```php
-Router::get('/users',          'UsersController#index');
-Router::get('/users/new',      'UsersController#new');
-Router::post('/users',         'UsersController#create');
-Router::get('/users/:id',      'UsersController#show');
-Router::put('/users/:id/edit', 'UsersController#edit');
-Router::put('/users/:id',      'UsersController#update');
-Router::delete('/users/:id',   'UsersController#destroy');
+Router::get('/users',          'UsersController#index');  // Listado de Usuarios
+Router::get('/users/new',      'UsersController#new');    // Muestra el formulario de creacion
+Router::post('/users',         'UsersController#create'); // Recibe info del formulario y crea un nuevo usuario
+Router::get('/users/:id',      'UsersController#show');   // Muestra la info de un determinado usuario
+Router::put('/users/:id/edit', 'UsersController#edit');   // Muestra el formulario de edicion
+Router::put('/users/:id',      'UsersController#update'); // Actualiza info de usuario ya existente
+Router::delete('/users/:id',   'UsersController#destroy');// Elimina usuario
 ```
 
 Aqui podemos ver mas en detalle como podemos aprovechar los verbos HTTP para
@@ -447,14 +455,19 @@ hacer requests de tipo `PUT` o `DELETE`. Enviaremos entonces un request por
 `POST` adjuntando, por ej: `_method=DELETE` entre los datos enviados al
 servidor.
 
-Valiendonos de estos verbos, podemos entonces optimizar un poco la busqueda de
-un match entre las rutas reduciendo la comparacion unicamente a aquellas
-determinadas especificamente para un verbo en particular, lo cual nos brinda
-ademas una pequenia capa extra de seguridad extra ya que no permitiriamos jamaz
-que se ejecute codigo "destructivo" preparado para un request por `POST` cuando
-el request atendido haya sido recibido, por ejemplo, por `GET`.
+__El orden en que las rutas son definidas es de suma importancia ya que aquellas
+rutas que sean definidas priero tomaran precedencia por sobre otras cuyo patron
+sea similar pero sean definidas posteriormente__
 
-__El orden en que las rutas son definidas es de suma importancia__
+Ilustremos entonces el funcionamiento basico del ruteador en pseudocodigo, para
+mayor detalle pueden leer la implementacion real de
+[Router#findHandlerFor](./app/core/router.php):
+
+```
+por ruta en Router.rutas:
+  si la el path del request matchea el patron de la ruta
+    ejecutamos el handler
+```
 
 
 Router Extra:
