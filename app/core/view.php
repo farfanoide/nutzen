@@ -3,7 +3,7 @@
 class View
 {
 
-  public function __construct($template, $context, $layout = NULL)
+  public function __construct($template, $context = [], $layout = NULL)
   {
     $this->template = __APP_ROOT__ . "/views/{$template}";
     $this->context  = $context;
@@ -22,13 +22,14 @@ class View
 
   public function render($context = [])
   {
+    $full_context = array_merge($this->context, $context);
     ob_start();
     include($this->template);
     $this->final = ob_get_clean();
 
     if ($this->hasLayout())
     {
-      $full_context = array_merge($this->context, $context, ['content' => $this->final]);
+      $full_context = array_merge($full_context, ['content' => $this->final]);
       return (new self($this->layout, $full_context))->render();
     }
     return $this->final;
