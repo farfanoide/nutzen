@@ -1,6 +1,8 @@
 NutZen
 ======
 
+[![Build Status](https://travis-ci.org/farfanoide/nutzen.svg?branch=master)](https://travis-ci.org/farfanoide/nutzen)
+
 ```
 Disclaimer: el contenido de este repositorio es completamente subjetivo a mi
 concepcion de los temas aqui tratados. Si bien trato de adecuarme a las buenas
