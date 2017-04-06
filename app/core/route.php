@@ -1,19 +1,15 @@
 <?php
 
-namespace App\Core;
-
 class Route
 {
+
   public $pattern;
-  public $method;
   public $regex;
   public $params;
 
-  public function __construct($pattern = '', $method = 'GET', $handler = '')
+  public function __construct($pattern = '')
   {
     $this->pattern = $pattern;
-    $this->method  = $method;
-    $this->handler = $handler;
     $this->params  = $this->paramNamesFrom($pattern);
     $this->regex   = $this->expandRegexFor($pattern);
   }
@@ -37,12 +33,12 @@ class Route
 
   public function paramNamesFrom($pattern)
   {
-    preg_match_all("/(?::(?<params>\w+))/", $pattern, $matches);
+    preg_match_all('/(?::(?<params>\w+))/', $pattern, $matches);
 
     return array_values($matches['params']);
   }
 
-  public function namedParamsFrom($uri)
+  public function paramsFrom($uri)
   {
     preg_match($this->regex, $uri, $matches);
 

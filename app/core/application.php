@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Core;
-
-use App\Core\Router as Router;
+require_once realpath(__APP_ROOT__ . '/core/view.php');
+require_once realpath(__APP_ROOT__ . '/core/response.php');
 
 class Application
 {
@@ -41,14 +40,21 @@ class Application
     }
   }
 
+  /**
+   *
+   * @param $exception
+   *
+   * @return Response
+   *
+   */
   protected function handleException($exception)
   {
-    $view = new View('error', ['message' => $exception->getMessage()]);
+    $view = new View('error.html', [
+      'code' => $exception->getCode(),
+      'message' => $exception->getMessage()
+    ]);
 
-    return new Response(
-      $view->render(),
-      $exception->getCode()
-    );
+    return new Response($view->render(), $exception->getCode());
   }
 
   protected function setLogger()

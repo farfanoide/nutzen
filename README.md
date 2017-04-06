@@ -470,10 +470,34 @@ por ruta en Router.rutas:
 ```
 
 
-Router Extra:
--------------
+Router Extra y [Routes]('./app/core/route.php')
+-----------------------------------------------
 
+Definitivamente la parte mas compleja del proyecto ya que involucra el uso de
+expresiones regulares, es por esto que trataremos de hablar mas acerca de la
+funcionalidad de las rutas y no tanto de su implementacion ya que esto podria
+volverse engorroso y confuso.
 
+Una ruta es entonces un objeto bastante simple en cuestiones de funcionalidad.
+Simplemente se lo instancia con un `patron` el cual deberia relacionarse
+directamente con un recurso y luego se le puede preguntar si el path del request
+hace juego (matchea) con dicha ruta o no. Es importante entender que el matcheo
+es simplemente una comparacion, lease: `request.uri == route.pattern`.
+
+Veamoslo con ejemplos practicos:
+
+```php
+$route = new Route('/home');
+// Suponinendo un request al home de nuestra pagina donde
+// $_SERVER['REQUEST_URI'] es igual a '/home'
+$route->matches($_SERVER['REQUEST_URI']) // => true
+// en cambio
+$route->matches('/about') // => false
+```
+
+Las cosas se ponen un poco mas divertidas cuando la misma url puede contener
+parametros, supongamos el ejemplo de CRUD de usuarios que definimos en la
+seccion de Router. En el caso de la ruta `edit` de un usuario, tenemos un
 
 [laravel]: http://laravel.com/
 [rails]: http://rubyonrails.org/

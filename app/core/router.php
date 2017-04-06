@@ -1,13 +1,27 @@
 <?php
 
-namespace App\Core;
+require_once __APP_ROOT__ . '/core/act_as_singleton.php';
+require_once __APP_ROOT__ . '/core/route.php';
+
+foreach (glob(__APP_ROOT__ . '/controllers/*.php') as $file)
+{
+  require_once $file;
+}
 
 class Router
 {
-  private static $instance = NULL;
+
+  use ActAsSingleton;
 
   public $separator = '#';
-  public $namespace = 'App\Controllers\\';
+
+  // Valiendonos de estos verbos, podemos entonces optimizar un poco la
+  // busqueda de un match entre las rutas reduciendo la comparacion unicamente
+  // a aquellas determinadas especificamente para un verbo en particular, lo
+  // cual nos brinda ademas una pequenia capa extra de seguridad extra ya que
+  // no permitiriamos jamaz que se ejecute codigo "destructivo" preparado para
+  // un request por `POST` cuando el request atendido haya sido recibido, por
+  // ejemplo, por `GET`.
 
   public $routes = [
     'GET'    => [],
@@ -16,22 +30,6 @@ class Router
     'DELETE' => [],
   ];
 
-  public static function getInstance()
-  {
-    if (!isset(self::$instance))
-    {
-      self::$instance = new self();
-    }
-
-    return self::$instance;
-  }
-
-  public function addRoute($method, $pattern, $handler)
-  {
-    $route = new Route($pattern, $method, $handler);
-    $this->routes[$method][] = $route;
-  }
-
   public function dispatch($request)
   {
     list($controller, $action) = $this->findHandlerFor($request);
@@ -39,25 +37,35 @@ class Router
     return (new $controller())->execute($action, $request);
   }
 
-  protected function splitHandler($handler)
-  {
-    return explode($this->separator, $this->namespace . $handler);
-  }
-
   protected function findHandlerFor($request)
   {
-    foreach ($this->routes[$request->method] as $route)
+
+    foreach ($this->routes[$request->method] as $pattern => $handler)
     {
+      $route = new Route($pattern);
+
       if ($route->matches($request->uri))
       {
-        $request->addParams($route->namedParamsFrom($request->uri));
+        $request->addParams($route->paramsFrom($request->uri));
 
-        return $this->splitHandler($route->handler);
+        return $this->splitHandler($handler);
       }
     }
 
     throw new NotFoundException();
   }
+
+  protected function splitHandler($handler)
+  {
+    return explode($this->separator, $handler);
+  }
+
+
+  public function addRoute($method, $pattern, $handler)
+  {
+    $this->routes[$method][$pattern] = $handler;
+  }
+
 
   // -----------------------------------------------------------
   // == Helpers

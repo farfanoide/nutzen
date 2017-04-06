@@ -1,7 +1,5 @@
 <?php
 
-namespace App\Core;
-
 /**
  * Request encapsulates an HTTP request from it's various Globals in PHP.
  *
@@ -32,7 +30,7 @@ class Request
 
   public function __construct($uri = '/', $method = 'GET', $params = [])
   {
-    $this->uri = $this->sanitizeUri($uri);
+    $this->uri    = $this->sanitizeUri($uri);
     $this->method = $method;
     $this->params = $params;
   }

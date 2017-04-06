@@ -1,10 +1,8 @@
 <?php
 
-namespace App\Core;
-
-use App\Core\Session as Session;
-use App\Core\Response as Response;
-use App\Core\View as View;
+require_once __APP_ROOT__ . '/core/session.php';
+require_once __APP_ROOT__ . '/core/response.php';
+require_once __APP_ROOT__ . '/core/view.php';
 
 class Controller
 {

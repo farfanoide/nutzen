@@ -1,7 +1,5 @@
 <?php
 
-namespace App\Core;
-
 class Session
 {
 
@@ -27,12 +25,7 @@ class Session
 
   public static function currentUser()
   {
-    if (isset($_SESSION['user']))
-    {
-      return $_SESSION['user'];
-    } else {
-      return new User();
-    }
+    return isset($_SESSION['user']) ? $_SESSION['user'] : new User();
   }
 
   public static function logged()
@@ -44,7 +37,8 @@ class Session
   {
     self::initializeMessages();
     $_SESSION['messages'][$type] = array_merge(
-      $_SESSION['messages'][$type], [$msg]
+      $_SESSION['messages'][$type],
+      [$msg]
     );
   }
 

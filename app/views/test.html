@@ -1,0 +1,20 @@
+<div class="container">
+  <?= $this->mire ?>
+</div>
+
+<? foreach ([1,2,3] as $number): ?>
+<?=  $number; ?>
+<? endforeach; ?>
+
+<? foreach ([1,2,3] as $number): ?>
+<?=  $number; ?>
+<br>
+
+<? endforeach; ?>
+
+<div class="esta_otra">
+  <? $this->partial('otra', [
+  'nombres' => ['magolla', 'esta', 'de', 'joda', 'por', 'ahi']
+  ]) ?>
+</div>
+

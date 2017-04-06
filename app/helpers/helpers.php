@@ -11,7 +11,7 @@ function root()
 
 function app_root()
 {
-  return root() . '/app';
+  return __APP_ROOT__;
 }
 
 function request()
@@ -22,4 +22,9 @@ function request()
 function current_user()
 {
   return Session::currentUser();
+}
+
+function partial($name, $context=[])
+{
+  return (new Sarasa($name . '.html', $context))->render();
 }
