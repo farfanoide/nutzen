@@ -3,15 +3,13 @@
 require dirname(__FILE__) . '/../app/core/view.php';
 define('__APP_ROOT__', dirname(__FILE__));
 
-use PHPUnit\Framework\TestCase;
-
 // ob_get_clean adds some extra characters so we make sure to remove them.
 function clean_output($str)
 {
   return trim(preg_replace('/\s{1,}|\r|\n/', ' ', $str));
 }
 
-class ViewTest extends TestCase
+class ViewTest extends PHPUnit_Framework_TestCase
 {
 
   public function testRenderDoesNotOutput()
@@ -31,7 +29,7 @@ class ViewTest extends TestCase
   public function testItRendersVariablesFromContext()
   {
     $expected_output = '<div class="content">Some Information</div>';
-    $output = (new View('test_context.html', ['info' => 'Some Information']))->render();
+    $output = (new View('test_context.html'))->render(['info' => 'Some Information']);
 
     $this->assertEquals($expected_output, clean_output($output));
   }

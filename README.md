@@ -501,6 +501,22 @@ Las cosas se ponen un poco mas divertidas cuando la misma url puede contener
 parametros, supongamos el ejemplo de CRUD de usuarios que definimos en la
 seccion de Router. En el caso de la ruta `edit` de un usuario, tenemos un
 
+Tests
+-----
+
+Se utiliza PHPUnit como framework para tests. Detalles de instalacion pueden ser
+encontrados en su pagina o simplemente pueden correr `composer install` ya que
+esta listado como dependencia para el desarrollo del proyect.
+
+Para ejecutar los tests es tan simple como:
+
+```bash
+# si instalaron phpunit de forma global
+phpunit
+# o si lo adquirieron por composer
+./vendor/bin/phpunit --testdox
+```
+
 [laravel]: http://laravel.com/
 [rails]: http://rubyonrails.org/
 [django]: https://www.djangoproject.com/
@@ -520,3 +536,5 @@ seccion de Router. En el caso de la ruta `edit` de un usuario, tenemos un
 [php_superglobals]: http://php.net/manual/es/language.variables.superglobals.php
 [uri]: https://es.wikipedia.org/wiki/Uniform_Resource_Identifier
 [method_spoofing]: http://laravel.com/docs/master/routing#form-method-spoofing
+
+
