@@ -14,7 +14,7 @@ class View
   {
     if (!array_key_exists($name, $this->context))
     {
-      $this->context[$name] = "[WARNIGN] {$name} was not found while rendering {$this->template}";
+      $this->context[$name] = "[WARNING] {$name} was not found while rendering {$this->template}";
     }
 
     return $this->context[$name];

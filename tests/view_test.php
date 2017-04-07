@@ -5,12 +5,13 @@ define('__APP_ROOT__', dirname(__FILE__));
 
 use PHPUnit\Framework\TestCase;
 
+// ob_get_clean adds some extra characters so we make sure to remove them.
 function clean_output($str)
 {
-  return str_replace(array("\r","\n"),'',trim($str));
+  return trim(preg_replace('/\s{1,}|\r|\n/', ' ', $str));
 }
 
-class RouteTest extends TestCase
+class ViewTest extends TestCase
 {
 
   public function testRenderDoesNotOutput()
@@ -35,5 +36,17 @@ class RouteTest extends TestCase
     $this->assertEquals($expected_output, clean_output($output));
   }
 
+  public function testItPrintsWarningWhenContextVariableIsNotFound()
+  {
+    $output = (new View('test_context.html'))->render();
+    $this->assertTrue((boolean) preg_match('/\[WARNING\]/', clean_output($output)));
+  }
+
+  public function testItRendersWithinALayout()
+  {
+    $output = (new View('test_context.html', ['info' => 'INFO'], 'layout.html'))->render();
+    $expected_output = clean_output('<!DOCTYPE html> <html> <head> <meta charset="utf-8" /> <title>test</title> </head> <body> <div class="content">INFO</div> </body> </html> ');
+    $this->assertEquals($expected_output, clean_output($output));
+  }
 
 }
